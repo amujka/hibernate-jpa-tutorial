@@ -5,23 +5,17 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
-public class Person {
+public class Company {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "Name")
     private String name;
 
-    @ManyToMany
-    @JoinTable(
-            name = "ContractPerson",
-            joinColumns = @JoinColumn(name = "IDPerson"),
-            inverseJoinColumns = @JoinColumn(name = "IDContract"))
+    @OneToMany
+    @JoinColumn(name = "IDContract")
     private Set<Contract> contracts;
-
-    public Person() {
-    }
 
     public long getId() {
         return id;
