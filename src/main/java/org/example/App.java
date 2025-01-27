@@ -1,76 +1,100 @@
 package org.example;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
-public class App
-{
-    public static void main( String[] args )
-    {
+public class App {
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("JpaExampleUnit");
-        EntityManager em = emf.createEntityManager();
+    private static final SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
 
-        em.getTransaction().begin();
+    public static void main(String[] args) {
 
-        Contract contract1 = new Contract();
-        contract1.setStartDate(LocalDate.of(2025, 1, 1));
-        contract1.setDuration(12);
-        contract1.setSalary(new BigDecimal("2500"));
+        Product product = addProduct("Monitor", new BigDecimal("299.99"));
+        System.out.println(product);
 
-        Contract contract2 = new Contract();
-        contract2.setStartDate(LocalDate.of(2026, 6, 1));
-        contract2.setDuration(24);
-        contract2.setSalary(new BigDecimal("10339"));
+        updateProduct(product.getId(), "Laptop", new BigDecimal("899.99"));
 
-        Company company1 = new Company();
-        company1.setName("Company Microsoft");
+        Product selectedProduct = selectProduct(product.getId());
+        System.out.println(selectedProduct);
 
-        Company company2 = new Company();
-        company2.setName("Company Apple");
+        deleteProduct(product.getId());
+    }
 
-        // Povezivanje ugovora s tvrtkom (Company)
-        contract1.setCompany(company1);
-        contract2.setCompany(company2);
+    public static Product addProduct(String name, BigDecimal price) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
+        Product product = null;
 
-        // Kreiranje osoba (Person)
-        Person person1 = new Person();
-        person1.setName("Ivo Ivic");
+        try {
+            transaction = session.beginTransaction();
+            product = new Product();
+            product.setName(name);
+            product.setPrice(price);
+            session.save(product);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return product;
+    }
 
-        Person person2 = new Person();
-        person2.setName("Ana Anic");
+    public static void updateProduct(Long id, String newName, BigDecimal newPrice) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
 
-        Set<Contract> contractsForPerson1 = new HashSet<>();
-        contractsForPerson1.add(contract1);
-        contractsForPerson1.add(contract2);
-        person1.setContracts(contractsForPerson1);
+        try {
+            transaction = session.beginTransaction();
+            Product product = session.get(Product.class, id);
+            if (product != null) {
+                product.setName(newName);
+                product.setPrice(newPrice);
+                session.update(product);  // Updating the product
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
 
-        Set<Contract> contractsForPerson2 = new HashSet<>();
-        contractsForPerson2.add(contract1);
-        person2.setContracts(contractsForPerson2);
+    public static Product selectProduct(Long id) {
+        Session session = sessionFactory.openSession();
+        Product product = null;
 
-        em.persist(company1);
-        em.persist(company2);
-        em.persist(contract1);
-        em.persist(contract2);
-        em.persist(person1);
-        em.persist(person2);
+        try {
+            product = session.get(Product.class, id);  // Retrieving product by ID
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return product;
+    }
 
+    public static void deleteProduct(Long id) {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
 
-        person1.setName("Ivo Updated");
-        em.merge(person1);
-
-        em.remove(contract1);
-
-        em.getTransaction().commit();
-
-        em.close();
-        emf.close();
+        try {
+            transaction = session.beginTransaction();
+            Product product = session.get(Product.class, id);
+            if (product != null) {
+                session.delete(product);  // Deleting the product
+                transaction.commit();
+            }
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
 }
