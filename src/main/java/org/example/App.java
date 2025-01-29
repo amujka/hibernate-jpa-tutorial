@@ -12,8 +12,8 @@ public class App {
 
     public static void main(String[] args) {
 
-        Product product = addProduct("Monitor", new BigDecimal("299.99"));
-        System.out.println(product);
+        Product product = new Product("Monitor", new BigDecimal("299.99"));
+        addProduct(product);
 
         updateProduct(product.getId(), "Laptop", new BigDecimal("899.99"));
 
@@ -23,28 +23,20 @@ public class App {
         deleteProduct(product.getId());
     }
 
-    public static Product addProduct(String name, BigDecimal price) {
-        Session session = sessionFactory.openSession();
+    public static void addProduct(Product product) {
         Transaction transaction = null;
-        Product product = new Product();
-
-        try {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            product.setName(name);
-            product.setPrice(price);
             session.save(product);
             transaction.commit();
+            System.out.println("added product: " + product);
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
             System.out.println(e.getMessage());
-        } finally {
-            session.close();
         }
-        return product;
     }
 
     public static void updateProduct(Long id, String newName, BigDecimal newPrice) {
-
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
@@ -54,6 +46,7 @@ public class App {
                 product.setPrice(newPrice);
                 session.update(product);
                 transaction.commit();
+                System.out.println("product updated");
             }
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
@@ -84,6 +77,7 @@ public class App {
             if (product != null) {
                 session.delete(product);
                 transaction.commit();
+                System.out.println("product deleted");
             }
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
