@@ -26,18 +26,17 @@ public class App {
     public static Product addProduct(String name, BigDecimal price) {
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        Product product = null;
+        Product product = new Product();
 
         try {
             transaction = session.beginTransaction();
-            product = new Product();
             product.setName(name);
             product.setPrice(price);
             session.save(product);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         } finally {
             session.close();
         }
@@ -45,23 +44,20 @@ public class App {
     }
 
     public static void updateProduct(Long id, String newName, BigDecimal newPrice) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = null;
 
-        try {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             Product product = session.get(Product.class, id);
             if (product != null) {
                 product.setName(newName);
                 product.setPrice(newPrice);
-                session.update(product);  // Updating the product
+                session.update(product);
                 transaction.commit();
             }
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
-            e.printStackTrace();
-        } finally {
-            session.close();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -70,9 +66,9 @@ public class App {
         Product product = null;
 
         try {
-            product = session.get(Product.class, id);  // Retrieving product by ID
+            product = session.get(Product.class, id);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         } finally {
             session.close();
         }
@@ -80,21 +76,18 @@ public class App {
     }
 
     public static void deleteProduct(Long id) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = null;
 
-        try {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             Product product = session.get(Product.class, id);
             if (product != null) {
-                session.delete(product);  // Deleting the product
+                session.delete(product);
                 transaction.commit();
             }
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
-            e.printStackTrace();
-        } finally {
-            session.close();
+            System.out.println(e.getMessage());
         }
     }
 }
