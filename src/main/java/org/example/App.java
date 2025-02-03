@@ -30,8 +30,8 @@ public class App {
         session.close();
     }
 
-    public static void updateBookTitle(Long id, String newTitle){
-        Session session  = sessionFactory.openSession();
+    public static void updateBookTitle(Long id, String newTitle) {
+        Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         session.createQuery("UPDATE Book b SET b.title=:title WHERE b.id=:id")
                 .setParameter("title", newTitle)
@@ -40,9 +40,4 @@ public class App {
         session.close();
         System.out.println("Book title updated.");
     }
-
-
-
-
 }
-
