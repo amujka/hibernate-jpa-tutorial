@@ -13,7 +13,7 @@ public class Publisher {
 
     private String name;
 
-    @ManyToMany(mappedBy = "publishers", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "publishers")
     private Set<Author>authors = new HashSet<>();
 
     public Publisher(String name) {
