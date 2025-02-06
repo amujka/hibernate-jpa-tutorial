@@ -17,6 +17,9 @@ public class Author {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "author")
     private Set<Book> books = new HashSet<>();
 
+    public Author() {
+    }
+
     public Author(String name) {
         this.name = name;
     }
@@ -50,7 +53,6 @@ public class Author {
         return "Author{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", books=" + books +
                 '}';
     }
 }

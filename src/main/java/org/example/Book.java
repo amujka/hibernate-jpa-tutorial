@@ -26,6 +26,9 @@ public class Book {
     )
     private Set<Publisher> publishers = new HashSet<>();
 
+    public Book() {
+    }
+
     public Book(String title, Author author) {
         this.title = title;
         this.author = author;
@@ -68,8 +71,6 @@ public class Book {
         return "Book{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", author=" + author +
-                ", publishers=" + publishers +
                 '}';
     }
 }
